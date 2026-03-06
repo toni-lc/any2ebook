@@ -66,6 +66,11 @@ function randomSuffix() {
   return Math.random().toString(36).slice(2, 8);
 }
 
+function renderVersion() {
+  const manifest = browser.runtime.getManifest();
+  document.getElementById("version").textContent = `tiny capture ${manifest.version}`;
+}
+
 async function autoExportItem(item, settings) {
   const filename = `${sanitizeSubdir(settings.autoExportSubdir)}/aku_capture_item_${nowStampForFilename()}_${randomSuffix()}.json`;
   const json = JSON.stringify([item], null, 2);
@@ -191,3 +196,4 @@ document.getElementById("autoExportSubdir").addEventListener("change", (event) =
 
 updateCount().catch(console.error);
 loadSettingsUi().catch(console.error);
+renderVersion();

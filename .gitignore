@@ -194,3 +194,5 @@ run_gui.py
 .test_run
 *.ps1
 tests/TESTS_EXPLAINED.md
+
+*.zip

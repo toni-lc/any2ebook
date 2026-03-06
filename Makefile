@@ -50,3 +50,7 @@ demo:
 	echo "Output directory: $$OUTPUT_DIR"; \
 	echo "Generated files:"; \
 	ls -lh "$$OUTPUT_DIR"
+
+.PHONY: package-extension
+package-extension:
+	zip -rj src/tiny-capture-extension.zip src/tiny-capture-extension/*
