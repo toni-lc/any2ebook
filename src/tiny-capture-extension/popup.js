@@ -130,11 +130,26 @@ async function saveCurrentTab() {
 
 async function exportJson() {
   /**
-   * Opens the export page, which will export the json file automatically 
+   * Exports queue to JSON, then clears it and updates the counter.
    */
-  const url = browser.runtime.getURL("export.html");
-  await browser.tabs.create({ url });
-  setStatus("Export tab opened ✓");
+  const queue = await getQueue();
+  const json = JSON.stringify(queue, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const filename = `aku_capture_queue_${nowStampForFilename()}.json`;
+  try {
+    await browser.downloads.download({
+      url,
+      filename,
+      saveAs: false,
+      conflictAction: "uniquify"
+    });
+    await setQueue([]);
+    await updateCount();
+    setStatus("Exported + cleared ✓");
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
 }
 
 
