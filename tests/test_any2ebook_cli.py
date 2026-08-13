@@ -6,6 +6,7 @@ from any2ebook import any2ebook
 
 
 def test_main_builds_config_from_file_and_output_args(monkeypatch, tmp_path: Path):
+    """Build a Config from --file and --output without loading a config file."""
     links_file = tmp_path / "blablabla.links"
     links_file.write_text("https://example.com\n", encoding="utf8")
     output_path = tmp_path / "book.epub"
@@ -27,6 +28,7 @@ def test_main_builds_config_from_file_and_output_args(monkeypatch, tmp_path: Pat
 
 
 def test_main_builds_config_from_obsidian_and_output_args(monkeypatch, tmp_path: Path):
+    """Build a Config from --obsidian and --output without loading a config file."""
     obsidian_path = tmp_path / "vault"
     obsidian_path.mkdir()
     output_path = tmp_path / "book.epub"
@@ -57,11 +59,13 @@ def test_main_builds_config_from_obsidian_and_output_args(monkeypatch, tmp_path:
     ],
 )
 def test_main_rejects_invalid_argument_combinations(args: list[str], tmp_path: Path):
+    """Reject missing required args and mutually exclusive input sources."""
     with pytest.raises(SystemExit):
         any2ebook.main(args)
 
 
 def test_main_rejects_missing_input_paths(tmp_path: Path):
+    """Reject --file and --obsidian paths that do not exist."""
     with pytest.raises(SystemExit):
         any2ebook.main(
             ["--file", str(tmp_path / "missing.txt"), "--output", str(tmp_path / "book.epub")]
@@ -74,6 +78,7 @@ def test_main_rejects_missing_input_paths(tmp_path: Path):
 
 
 def test_main_rejects_missing_output_parent(tmp_path: Path):
+    """Reject output paths whose parent folder does not exist."""
     links_file = tmp_path / "links.txt"
     links_file.write_text("https://example.com\n", encoding="utf8")
 
@@ -89,6 +94,7 @@ def test_main_rejects_missing_output_parent(tmp_path: Path):
 
 
 def test_main_info_prints_database_path_without_input_args(monkeypatch, capsys, tmp_path: Path):
+    """Print the database path for `any2ebook info` without requiring input args."""
     db_path = tmp_path / "any2ebook.db"
     monkeypatch.setattr("any2ebook.any2ebook.ensure_db_path", lambda: db_path)
 
@@ -98,6 +104,7 @@ def test_main_info_prints_database_path_without_input_args(monkeypatch, capsys, 
 
 
 def test_run_test_mode_is_non_interactive_and_uses_links_file(monkeypatch, tmp_path: Path):
+    """Run test mode with a temporary links file and no interactive prompts."""
     called = {}
 
     def fake_ingest_run(cfg, dry_run=False, links_file=None):

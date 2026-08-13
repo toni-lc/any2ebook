@@ -22,6 +22,7 @@ def _seed_items(db_path: Path) -> None:
 
 
 def test_get_urls_to_convert_excludes_converted_and_failed(tmp_path: Path):
+    """Select only URLs that have not already been converted or failed."""
     db_path = tmp_path / "any2ebook.db"
     migrate_db(db_path)
     _seed_items(db_path)
@@ -46,6 +47,7 @@ def test_get_urls_to_convert_excludes_converted_and_failed(tmp_path: Path):
 
 
 def test_stage_and_convert_records_failed_and_converted(monkeypatch, tmp_path: Path):
+    """Record per-item conversion results and commit the successful EPUB run."""
     db_path = tmp_path / "any2ebook.db"
     output_path = tmp_path / "out" / "book.epub"
     staging_dir = tmp_path / "staging"
@@ -93,6 +95,7 @@ def test_stage_and_convert_records_failed_and_converted(monkeypatch, tmp_path: P
 
 
 def test_stage_and_convert_keyboard_interrupt_rolls_back(monkeypatch, tmp_path: Path):
+    """Rollback database writes and remove partial EPUB output on interruption."""
     db_path = tmp_path / "any2ebook.db"
     output_path = tmp_path / "out" / "book.epub"
     staging_dir = tmp_path / "staging"

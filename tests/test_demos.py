@@ -48,6 +48,7 @@ def _assert_demo_epub_metadata() -> None:
 
 
 def test_demo_obsidian_creates_epub_with_expected_metadata(monkeypatch):
+    """Run the Obsidian demo and verify its EPUB metadata."""
     _cleanup_demo_artifacts()
     monkeypatch.setattr("any2ebook.html2ebook.extract_website_content", _fake_content)
 
@@ -62,6 +63,7 @@ def test_demo_obsidian_creates_epub_with_expected_metadata(monkeypatch):
 
 
 def test_demo_txt_creates_epub_with_expected_metadata(monkeypatch):
+    """Run the text-file demo and verify its EPUB metadata."""
     _cleanup_demo_artifacts()
     monkeypatch.setattr("any2ebook.html2ebook.extract_website_content", _fake_content)
 

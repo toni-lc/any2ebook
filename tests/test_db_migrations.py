@@ -23,6 +23,7 @@ def _run_items_columns(db_path: Path) -> list[str]:
 
 
 def test_migrate_db_creates_current_schema(tmp_path: Path):
+    """Create all current database tables with the expected columns."""
     db_path = tmp_path / "any2ebook.db"
     migrate_db(db_path)
 
@@ -45,6 +46,7 @@ def test_migrate_db_creates_current_schema(tmp_path: Path):
 
 
 def test_migrate_db_is_idempotent(tmp_path: Path):
+    """Run migrations twice without changing schema or losing existing rows."""
     db_path = tmp_path / "any2ebook.db"
     migrate_db(db_path)
     migrate_db(db_path)
@@ -80,6 +82,7 @@ def test_migrate_db_is_idempotent(tmp_path: Path):
 
 
 def test_migrate_db_upgrades_runs_table_missing_status(tmp_path: Path):
+    """Add a missing runs.status column to a previous schema."""
     db_path = tmp_path / "any2ebook.db"
     with sqlite3.connect(db_path) as conn:
         conn.execute(
@@ -110,6 +113,7 @@ def test_migrate_db_upgrades_runs_table_missing_status(tmp_path: Path):
 
 
 def test_migrate_db_upgrades_legacy_runs_totals_schema(tmp_path: Path):
+    """Add current run artifact columns to a legacy totals-based runs table."""
     db_path = tmp_path / "any2ebook.db"
     with sqlite3.connect(db_path) as conn:
         conn.execute(
@@ -145,6 +149,7 @@ def test_migrate_db_upgrades_legacy_runs_totals_schema(tmp_path: Path):
 
 
 def test_migrate_db_repairs_run_items_fk_to_items_table(tmp_path: Path):
+    """Repair legacy run_items foreign keys so item_id references items."""
     db_path = tmp_path / "any2ebook.db"
     with sqlite3.connect(db_path) as conn:
         conn.execute(
