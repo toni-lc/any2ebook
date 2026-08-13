@@ -5,9 +5,6 @@ install:
 update-deps:
 	uv sync --frozen
 
-build:
-	uv run pyinstaller -F -n any2ebook_cli src/any2ebook/any2ebook.py      
-
 .PHONY: test
 test:
 	uv run pytest
