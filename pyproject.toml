@@ -38,8 +38,5 @@ select = ["E", "F", "I"]
 [tool.setuptools]
 package-dir = {"" = "src"}
 
-[tool.setuptools.package-data]
-any2ebook = ["*.yaml"]
-
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -7,7 +7,7 @@ update-deps:
 
 .PHONY: test
 test:
-	uv run pytest
+	uv run python -m pytest
 
 .PHONY: lint
 lint: 
