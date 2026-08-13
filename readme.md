@@ -12,7 +12,6 @@ uv tool install git+https://github.com/tonilatorrec/any2ebook.git
 Or with `make`:
 ```
 make install
-make build
 ```
 
 ## Inputs 
