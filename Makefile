@@ -6,8 +6,7 @@ update-deps:
 	uv sync --frozen
 
 build:
-	uv run pyinstaller -F -n any2ebook_cli src/any2ebook/any2ebook.py
-	uv run pyinstaller -F -w -n any2ebook --paths src --collect-data any2ebook=*.yaml run_gui.py          
+	uv run pyinstaller -F -n any2ebook_cli src/any2ebook/any2ebook.py      
 
 .PHONY: test
 test:

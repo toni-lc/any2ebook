@@ -9,7 +9,7 @@ Install using `uv` as a tool:
 uv tool install git+https://github.com/tonilatorrec/any2ebook.git
 ```
 
-Or with `make`, this also creates the cli and gui executables:
+Or with `make`:
 ```
 make install
 make build
