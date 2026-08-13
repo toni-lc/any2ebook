@@ -23,16 +23,18 @@ class Config:
         config_path = Path(path)
         if not config_path.exists():
             raise ConfigNotFoundError(config_path)
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             raw = yaml.safe_load(f) or {}
             # TODO: avoid Path('.') when the raw is ''
             return cls(
                 config_path=config_path,
                 clippings_path=(
-                    Path(raw['clippings_path']) if raw.get('clippings_path') is not None else None
+                    Path(raw["clippings_path"]) if raw.get("clippings_path") is not None else None
                 ),
-                input_path=Path(raw['input_path']) if raw.get('input_path') is not None else None,
-                output_path=Path(raw['output_path']) if raw.get('output_path') is not None else None
+                input_path=Path(raw["input_path"]) if raw.get("input_path") is not None else None,
+                output_path=Path(raw["output_path"])
+                if raw.get("output_path") is not None
+                else None,
             )
 
     def save(self, config_path: Path | None = None) -> None:
@@ -43,9 +45,9 @@ class Config:
         raw = asdict(self)
         out = dict()
         # TODO: create constant for all keys to be saved in config file
-        for k in ('clippings_path', 'input_path', 'output_path'): 
+        for k in ("clippings_path", "input_path", "output_path"):
             out[k] = str(raw[k]) if raw[k] is not None else None
-        with open(target_path, 'w') as f:
+        with open(target_path, "w") as f:
             yaml.dump(out, f)
         self.config_path = target_path
 

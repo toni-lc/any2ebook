@@ -16,6 +16,7 @@ def run(config: Config, links_file: Path | None = None):
         print("Error:", e)
         return False
 
+
 def run_test_mode() -> bool:
     with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=True, encoding="utf8") as f:
         f.write("https://example.com\n")
@@ -30,6 +31,7 @@ def run_test_mode() -> bool:
         sep=" ",
     )
     return True
+
 
 def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(prog="any2ebook")
@@ -94,6 +96,7 @@ def main(argv: list[str] | None = None):
         output_path=output_path,
     )
     run(config)
+
 
 if __name__ == "__main__":
     main()

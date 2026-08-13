@@ -36,6 +36,7 @@ def _create_items_table(conn: sqlite3.Connection) -> None:
         """
     )
 
+
 def _create_runs_table_v3(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
@@ -88,21 +89,13 @@ def _assert_current_schema(conn: sqlite3.Connection) -> None:
 def _upgrade_runs_table_if_needed(conn: sqlite3.Connection) -> None:
     runs_cols = _table_columns(conn, "runs")
     if "artifact_type" not in runs_cols:
-        conn.execute(
-            "ALTER TABLE runs ADD COLUMN artifact_type TEXT NOT NULL DEFAULT 'epub'"
-        )
+        conn.execute("ALTER TABLE runs ADD COLUMN artifact_type TEXT NOT NULL DEFAULT 'epub'")
     if "filename" not in runs_cols:
-        conn.execute(
-            "ALTER TABLE runs ADD COLUMN filename TEXT NOT NULL DEFAULT ''"
-        )
+        conn.execute("ALTER TABLE runs ADD COLUMN filename TEXT NOT NULL DEFAULT ''")
     if "recipe" not in runs_cols:
-        conn.execute(
-            "ALTER TABLE runs ADD COLUMN recipe TEXT NOT NULL DEFAULT ''"
-        )
+        conn.execute("ALTER TABLE runs ADD COLUMN recipe TEXT NOT NULL DEFAULT ''")
     if "status" not in runs_cols:
-        conn.execute(
-            "ALTER TABLE runs ADD COLUMN status TEXT NOT NULL DEFAULT 'committed'"
-        )
+        conn.execute("ALTER TABLE runs ADD COLUMN status TEXT NOT NULL DEFAULT 'committed'")
 
 
 def _run_items_fk_targets(conn: sqlite3.Connection) -> dict[str, str]:

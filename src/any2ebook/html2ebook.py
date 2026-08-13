@@ -8,6 +8,7 @@ from readabilipy import simple_json_from_html_string
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 def extract_website_content(url):
     """
     Extracts the main content and title from a website using readabilipy.

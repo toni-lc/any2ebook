@@ -24,6 +24,7 @@ def read_links_file(path: str | os.PathLike | Path) -> list[str]:
                 links.append(line)
     return links
 
+
 def find_clipping_files(path: str | os.PathLike) -> list[Path]:
     """
     Return a list of Markdown files inside the vault's Clippings directory.
@@ -180,8 +181,10 @@ def run(config: Config, dry_run: bool = False, links_file: Path | None = None) -
                 continue
         return {"ready_items": ready_items, "warnings": warnings}
 
+
 def main():
     raise SystemExit("Run this command through the any2ebook CLI.")
+
 
 if __name__ == "__main__":
     main()

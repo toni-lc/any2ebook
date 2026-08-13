@@ -133,6 +133,7 @@ def stage_and_convert(
     finally:
         conn.close()
 
+
 def run(config: Config):
     db_path = migrate_db(ensure_db_path())
     ids, urls = get_urls_to_convert(str(db_path))  # -> list[tuple[str]]
@@ -146,8 +147,10 @@ def run(config: Config):
 
     stage_and_convert(ids, urls, str(db_path), str(config.output_path), staging_path)
 
+
 def main():
     raise SystemExit("Run this command through the any2ebook CLI.")
+
 
 if __name__ == "__main__":
     main()

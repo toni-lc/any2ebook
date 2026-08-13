@@ -77,12 +77,8 @@ def test_stage_and_convert_records_failed_and_converted(monkeypatch, tmp_path: P
     )
 
     with sqlite3.connect(db_path) as conn:
-        actions = conn.execute(
-            "SELECT item_id, action FROM run_items ORDER BY item_id"
-        ).fetchall()
-        run = conn.execute(
-            "SELECT status, filename FROM runs ORDER BY id DESC LIMIT 1"
-        ).fetchone()
+        actions = conn.execute("SELECT item_id, action FROM run_items ORDER BY item_id").fetchall()
+        run = conn.execute("SELECT status, filename FROM runs ORDER BY id DESC LIMIT 1").fetchone()
 
     assert actions == [(1, "converted"), (2, "failed"), (3, "converted")]
     assert run is not None

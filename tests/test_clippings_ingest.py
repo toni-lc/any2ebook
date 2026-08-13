@@ -48,9 +48,7 @@ def test_run_ingests_links_file_without_prompting_for_clippings_path(monkeypatch
     assert report == {"ready_items": 2, "warnings": 1}
 
     with sqlite3.connect(db_path) as conn:
-        rows = conn.execute(
-            "SELECT payload_ref, source FROM items ORDER BY payload_ref"
-        ).fetchall()
+        rows = conn.execute("SELECT payload_ref, source FROM items ORDER BY payload_ref").fetchall()
 
     # utm_* query params are stripped during URL normalization.
     assert rows == [
