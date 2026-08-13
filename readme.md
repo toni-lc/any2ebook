@@ -49,3 +49,46 @@ Invalid lines are skipped.
 
 Each URL is attempted once. If the conversion fails it will be recorded and skipped in future runs. 
 
+## Architecture
+- **Input sources**: the CLI accepts either an Obsidian folder with clipped Markdown files
+  (`--obsidian`) or a plain text file with one URL per line (`--file`).
+- **Ingest normalization**: URLs are normalized before storage by lowercasing the host,
+  removing fragments, stripping common tracking query parameters, and deduplicating on the
+  normalized URL.
+- **SQLite state tables**: `items` stores captured URLs, `runs` stores conversion attempts, and
+  `run_items` links each URL to its conversion result.
+- **Conversion stage**: pending URLs are fetched, parsed with ReadabiliPy, converted into EPUB
+  chapters, and written as one collected EPUB.
+- **Output artifacts**: each run writes the requested EPUB file plus a staging text file containing
+  the URLs selected for that conversion.
+- **Failure/retry behavior**: URLs marked `converted` or `failed` are skipped in future runs; a
+  failed transaction rolls back and removes the partial EPUB.
+
+## Database
+any2ebook stores its SQLite database in the operating system's user data folder:
+- Windows: `%LOCALAPPDATA%\any2ebook\any2ebook.db`
+- macOS: `~/Library/Application Support/any2ebook/any2ebook.db`
+- Linux: `${XDG_DATA_HOME:-~/.local/share}/any2ebook/any2ebook.db`
+
+To print the database path:
+```
+any2ebook info
+```
+
+## Demos
+The `scripts/` directory contains two demos that use short Project Gutenberg pages:
+- `scripts/demo-obsidian.py` creates Obsidian-style Markdown clippings and runs `--obsidian`.
+- `scripts/demo-txt.py` creates a text file with both links and runs `--file`.
+
+To run the demos:
+
+```sh
+make demo-obsidian
+make demo-txt
+```
+
+Both demos write `scripts/example.epub` and `scripts/any2ebook.db`, so you can inspect the
+generated EPUB and SQLite database without writing demo data to your user data folder.
+
+The `example/` directory contains a captured output of the demos, including the generated
+staging files, SQLite database, EPUB, and the input folders/files used by both demo modes.

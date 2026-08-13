@@ -193,3 +193,8 @@ any2ebook/config.yaml
 
 .test_run
 *.ps1
+scripts/demo-links.txt
+scripts/demo-obsidian-vault/
+scripts/any2ebook.db*
+scripts/example.epub
+scripts/staging/

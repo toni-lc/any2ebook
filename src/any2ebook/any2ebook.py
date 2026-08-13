@@ -4,6 +4,7 @@ from pathlib import Path
 
 from . import clippings_ingest, clippings_to_epub
 from .config import Config
+from .db import ensure_db_path
 
 
 def run(config: Config, links_file: Path | None = None):
@@ -53,11 +54,15 @@ def main(argv: list[str] | None = None):
     )
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("test", help="Run a self-contained test workflow.")
+    subparsers.add_parser("info", help="Print the database path.")
     args = parser.parse_args(argv)
 
     if args.test or args.command == "test":
         ok = run_test_mode()
         raise SystemExit(0 if ok else 1)
+    if args.command == "info":
+        print(ensure_db_path())
+        return
 
     has_obsidian = args.obsidian is not None
     has_file = args.input_file is not None

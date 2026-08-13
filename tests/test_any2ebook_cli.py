@@ -88,6 +88,15 @@ def test_main_rejects_missing_output_parent(tmp_path: Path):
         )
 
 
+def test_main_info_prints_database_path_without_input_args(monkeypatch, capsys, tmp_path: Path):
+    db_path = tmp_path / "any2ebook.db"
+    monkeypatch.setattr("any2ebook.any2ebook.ensure_db_path", lambda: db_path)
+
+    any2ebook.main(["info"])
+
+    assert capsys.readouterr().out == f"{db_path}\n"
+
+
 def test_run_test_mode_is_non_interactive_and_uses_links_file(monkeypatch, tmp_path: Path):
     called = {}
 
