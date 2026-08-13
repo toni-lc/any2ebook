@@ -12,6 +12,9 @@ test:
 .PHONY: lint
 lint: 
 	uv run ruff check ./src ./tests --fix
+
+.PHONY: format
+format:
 	uv run ruff format ./src ./tests
 
 .PHONY: upgrade
