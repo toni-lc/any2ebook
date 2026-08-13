@@ -3,12 +3,12 @@ import tempfile
 from pathlib import Path
 
 from . import clippings_ingest, clippings_to_epub
-from .config import Config, ensure_config_path
+from .config import Config
 
 
 def run(config: Config, links_file: Path | None = None):
     try:
-        clippings_ingest.run(config, links_file=links_file)
+        clippings_ingest.run(config, links_file=links_file or config.input_path)
         clippings_to_epub.run(config)
         return True
     except Exception as e:
@@ -16,10 +16,11 @@ def run(config: Config, links_file: Path | None = None):
         return False
 
 def run_test_mode() -> bool:
-    config = Config.load(ensure_config_path())
     with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=True, encoding="utf8") as f:
         f.write("https://example.com\n")
         f.flush()
+        output_path = Path(tempfile.gettempdir()) / "any2ebook-test.epub"
+        config = Config(input_path=Path(f.name), output_path=output_path)
         report = clippings_ingest.run(config, dry_run=True, links_file=Path(f.name))
     print(
         "Test mode results:",
@@ -34,8 +35,16 @@ def main(argv: list[str] | None = None):
     parser.add_argument(
         "-f",
         "--file",
-        dest="links_file",
-        help="Optional path to a file containing one URL per line.",
+        dest="input_file",
+        help="Path to a text file containing one URL per line.",
+    )
+    parser.add_argument(
+        "--obsidian",
+        help="Path to an Obsidian folder containing clipped Markdown files.",
+    )
+    parser.add_argument(
+        "--output",
+        help="Output EPUB file path.",
     )
     parser.add_argument(
         "--test",
@@ -50,14 +59,36 @@ def main(argv: list[str] | None = None):
         ok = run_test_mode()
         raise SystemExit(0 if ok else 1)
 
-    links_file: Path | None = None
-    if args.links_file is not None:
-        links_file = Path(args.links_file)
-        if not links_file.exists() or not links_file.is_file():
-            parser.error(f"links_file does not exist or is not a file: {links_file}")
+    has_obsidian = args.obsidian is not None
+    has_file = args.input_file is not None
+    if has_obsidian and has_file:
+        parser.error("--obsidian and --file cannot be used together")
+    if not has_obsidian and not has_file:
+        parser.error("one of --obsidian or --file is required")
+    if args.output is None:
+        parser.error("--output is required")
 
-    config = Config.load(ensure_config_path())
-    run(config, links_file=links_file)
+    obsidian_path: Path | None = None
+    input_path: Path | None = None
+    output_path = Path(args.output)
+
+    if has_obsidian:
+        obsidian_path = Path(args.obsidian)
+        if not obsidian_path.exists() or not obsidian_path.is_dir():
+            parser.error(f"--obsidian must be an existing folder: {obsidian_path}")
+    if has_file:
+        input_path = Path(args.input_file)
+        if not input_path.exists() or not input_path.is_file():
+            parser.error(f"--file must be an existing file: {input_path}")
+    if not output_path.parent.exists() or not output_path.parent.is_dir():
+        parser.error(f"--output parent folder must exist: {output_path.parent}")
+
+    config = Config(
+        clippings_path=obsidian_path,
+        input_path=input_path,
+        output_path=output_path,
+    )
+    run(config)
 
 if __name__ == "__main__":
     main()

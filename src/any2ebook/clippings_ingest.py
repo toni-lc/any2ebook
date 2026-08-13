@@ -7,7 +7,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import yaml
 
-from .config import Config, ensure_config_path
+from .config import Config
 from .db import ensure_db_path, migrate_db
 
 logger = logging.getLogger(__name__)
@@ -158,23 +158,9 @@ def run(config: Config, dry_run: bool = False, links_file: Path | None = None) -
             ready_items += 1
         return {"ready_items": ready_items, "warnings": warnings}
 
-    # TODO: should these checks run here or when setting up config?
     else:
-        _clippings_path = config.clippings_path
-        if _clippings_path is None:
-            print("Clippings path not yet set. ", end="")
-            while True:
-                _clippings_path = input("""Please set path:\n> """)
-                if os.path.exists(_clippings_path):
-                    break
-            config.clippings_path = _clippings_path
-        elif not os.path.exists(_clippings_path):
-            print("Clippings path does not exist. ", end="")
-            while not os.path.exists(_clippings_path):
-                _clippings_path = input("""Please set valid path:\n> """)
-            config.clippings_path = _clippings_path
-
-        config.save()
+        if config.clippings_path is None:
+            raise ValueError("clippings_path is required")
         files = find_clipping_files(config.clippings_path)
         for file in files:
             try:
@@ -186,7 +172,7 @@ def run(config: Config, dry_run: bool = False, links_file: Path | None = None) -
                 file_url = front_matter["source"]
                 normalized_file_url = normalize_url(file_url)
                 if not dry_run:
-                    upsert_item(db_path, front_matter, normalized_file_url, file)
+                    upsert_item(db_path, front_matter, normalized_file_url, str(file))
                 ready_items += 1
             except Exception as e:
                 warnings += 1
@@ -195,8 +181,7 @@ def run(config: Config, dry_run: bool = False, links_file: Path | None = None) -
         return {"ready_items": ready_items, "warnings": warnings}
 
 def main():
-    config = Config.load(ensure_config_path())
-    run(config)
+    raise SystemExit("Run this command through the any2ebook CLI.")
 
 if __name__ == "__main__":
     main()

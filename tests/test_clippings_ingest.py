@@ -29,14 +29,18 @@ def test_run_ingests_links_file_without_prompting_for_clippings_path(monkeypatch
     monkeypatch.setattr("any2ebook.clippings_ingest.ensure_db_path", lambda: db_path)
     monkeypatch.setattr(
         "builtins.input",
-        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("input() should not be called")),
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("input() should not be called")
+        ),
     )
 
     config = Config(config_path=tmp_path / "config.yaml", clippings_path=None, output_path=tmp_path)
     monkeypatch.setattr(
         Config,
         "save",
-        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("save() should not be called")),
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("save() should not be called")
+        ),
     )
 
     report = run(config, links_file=links_file)

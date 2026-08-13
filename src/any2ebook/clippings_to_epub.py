@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-from .config import Config, ensure_config_path
+from .config import Config
 from .db import ensure_db_path, migrate_db
 from .html2ebook import create_epub_from_urls
 
@@ -52,13 +52,15 @@ def stage_and_convert(
     id_list: list[int],
     url_list: list[str],
     path_to_db: str,
-    output_dir: str,
+    output_path: str,
     staging_dir: str,
 ) -> None:
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d")
     idx_runs = 1
     if os.path.exists(os.path.join(staging_dir, datetime_str + ".txt")):
-        while os.path.exists(os.path.join(staging_dir, datetime_str + "_" + str(idx_runs) + ".txt")):
+        while os.path.exists(
+            os.path.join(staging_dir, datetime_str + "_" + str(idx_runs) + ".txt")
+        ):
             idx_runs += 1
         staging_path = os.path.join(staging_dir, datetime_str + "_" + str(idx_runs) + ".txt")
     else:
@@ -67,13 +69,6 @@ def stage_and_convert(
     with open(staging_path, "w") as f:
         for url in url_list:
             f.write(url + "\n")
-
-    if os.path.exists(os.path.join(output_dir, datetime_str + ".epub")):
-        while os.path.exists(os.path.join(output_dir, datetime_str + "_" + str(idx_runs) + ".epub")):
-            idx_runs += 1
-        output_path = os.path.join(output_dir, datetime_str + "_" + str(idx_runs) + ".epub")
-    else:
-        output_path = os.path.join(output_dir, datetime_str + ".epub")
 
     _ensure_parent_dir(output_path)
     _cleanup_file(output_path)
@@ -91,6 +86,8 @@ def stage_and_convert(
             """,
             (datetime.datetime.now().isoformat(), "epub", output_path, "", "in_progress"),
         )
+        if cur.lastrowid is None:
+            raise RuntimeError("Failed to create conversion run.")
         run_id = int(cur.lastrowid)
         try:
             item_results = create_epub_from_urls(url_list, output_path)
@@ -100,7 +97,9 @@ def stage_and_convert(
             has_converted = any(item_results)
             if has_converted:
                 if not os.path.exists(output_path):
-                    raise RuntimeError("EPUB conversion reported success but artifact file is missing.")
+                    raise RuntimeError(
+                        "EPUB conversion reported success but artifact file is missing."
+                    )
                 final_filename = output_path
             else:
                 _cleanup_file(output_path)
@@ -136,32 +135,19 @@ def stage_and_convert(
 
 def run(config: Config):
     db_path = migrate_db(ensure_db_path())
-    ids, urls = get_urls_to_convert(db_path)  # -> list[tuple[str]]
+    ids, urls = get_urls_to_convert(str(db_path))  # -> list[tuple[str]]
 
-    _output_path = config.output_path
-    if _output_path is None:
-        print("Output path not yet set. ", end="")
-        while True:
-            _output_path = input("""Please set path:\n> """)
-            if os.path.exists(_output_path):
-                break
-        config.output_path = _output_path
-    elif not os.path.exists(_output_path):
-        k = input("Output path does not exist. Create? [y/n]")
-        os.makedirs(k)
-        config.output_path = _output_path
+    if config.output_path is None:
+        raise ValueError("output_path is required")
 
-    config.save()
-
-    staging_path = os.path.join(config.config_path.parent, "staging")
+    staging_path = os.path.join(config.output_path.parent, "staging")
     if not os.path.exists(staging_path):
         os.mkdir(staging_path)
 
-    stage_and_convert(ids, urls, db_path, _output_path, staging_path)
+    stage_and_convert(ids, urls, str(db_path), str(config.output_path), staging_path)
 
 def main():
-    config = Config.load(ensure_config_path())
-    run(config)
+    raise SystemExit("Run this command through the any2ebook CLI.")
 
 if __name__ == "__main__":
     main()

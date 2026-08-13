@@ -47,9 +47,9 @@ def test_get_urls_to_convert_excludes_converted_and_failed(tmp_path: Path):
 
 def test_stage_and_convert_records_failed_and_converted(monkeypatch, tmp_path: Path):
     db_path = tmp_path / "any2ebook.db"
-    output_dir = tmp_path / "out"
+    output_path = tmp_path / "out" / "book.epub"
     staging_dir = tmp_path / "staging"
-    output_dir.mkdir()
+    output_path.parent.mkdir()
     staging_dir.mkdir()
 
     migrate_db(db_path)
@@ -70,7 +70,7 @@ def test_stage_and_convert_records_failed_and_converted(monkeypatch, tmp_path: P
             "https://example.com/c",
         ],
         path_to_db=str(db_path),
-        output_dir=str(output_dir),
+        output_path=str(output_path),
         staging_dir=str(staging_dir),
     )
 
@@ -85,7 +85,7 @@ def test_stage_and_convert_records_failed_and_converted(monkeypatch, tmp_path: P
     assert actions == [(1, "converted"), (2, "failed"), (3, "converted")]
     assert run is not None
     assert run[0] == "committed"
-    assert run[1].endswith(".epub")
+    assert run[1] == str(output_path)
 
     ids, urls = get_urls_to_convert(str(db_path))
     assert ids == []
@@ -94,9 +94,9 @@ def test_stage_and_convert_records_failed_and_converted(monkeypatch, tmp_path: P
 
 def test_stage_and_convert_keyboard_interrupt_rolls_back(monkeypatch, tmp_path: Path):
     db_path = tmp_path / "any2ebook.db"
-    output_dir = tmp_path / "out"
+    output_path = tmp_path / "out" / "book.epub"
     staging_dir = tmp_path / "staging"
-    output_dir.mkdir()
+    output_path.parent.mkdir()
     staging_dir.mkdir()
 
     migrate_db(db_path)
@@ -117,7 +117,7 @@ def test_stage_and_convert_keyboard_interrupt_rolls_back(monkeypatch, tmp_path: 
                 "https://example.com/c",
             ],
             path_to_db=str(db_path),
-            output_dir=str(output_dir),
+            output_path=str(output_path),
             staging_dir=str(staging_dir),
         )
         assert False, "Expected KeyboardInterrupt"
@@ -130,5 +130,5 @@ def test_stage_and_convert_keyboard_interrupt_rolls_back(monkeypatch, tmp_path: 
 
     assert runs_count == 0
     assert run_items_count == 0
-    assert not any(output_dir.glob("*.epub"))
-    assert not any(output_dir.glob("*.epub.tmp"))
+    assert not output_path.exists()
+    assert not any(output_path.parent.glob("*.epub.tmp"))
