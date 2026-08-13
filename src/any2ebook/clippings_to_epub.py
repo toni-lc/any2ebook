@@ -28,23 +28,26 @@ def get_urls_to_convert(path_to_db: str) -> tuple[list[int], list[str]]:
     """Pick URL payloads that have never been converted and never failed before."""
     conn = sqlite3.connect(path_to_db)  # will create db if it does not exist
     cur = conn.cursor()
-    with conn:
-        query = cur.execute(
-            """
-            SELECT i.id, i.payload_ref
-            FROM items i
-            WHERE i.payload_type = 'url'
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM run_items ri
-                  WHERE ri.item_id = i.id AND ri.action IN ('converted', 'failed')
-              )
-            """
-        )
-        res = query.fetchall()
+    try:
+        with conn:
+            query = cur.execute(
+                """
+                SELECT i.id, i.payload_ref
+                FROM items i
+                WHERE i.payload_type = 'url'
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM run_items ri
+                      WHERE ri.item_id = i.id AND ri.action IN ('converted', 'failed')
+                  )
+                """
+            )
+            res = query.fetchall()
+    finally:
+        conn.close()
 
-        ids = [r[0] for r in res]
-        urls = [r[1] for r in res]
+    ids = [r[0] for r in res]
+    urls = [r[1] for r in res]
     return ids, urls
 
 

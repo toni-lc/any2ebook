@@ -127,18 +127,21 @@ def upsert_item(
     """
     captured_at = item_front_matter.get("created") or datetime.now(timezone.utc).isoformat()
 
-    with conn:
-        cur.execute(
-            sql_query,
-            {
-                "captured_at": captured_at,
-                "payload_ref": payload_ref,
-                "payload_type": "url",
-                "source": str(md_file_path) if md_file_path is not None else "raw_text",
-            },
-        )
-        row = cur.fetchone()
-        return int(row[0])
+    try:
+        with conn:
+            cur.execute(
+                sql_query,
+                {
+                    "captured_at": captured_at,
+                    "payload_ref": payload_ref,
+                    "payload_type": "url",
+                    "source": str(md_file_path) if md_file_path is not None else "raw_text",
+                },
+            )
+            row = cur.fetchone()
+            return int(row[0])
+    finally:
+        conn.close()
 
 
 def run(config: Config, dry_run: bool = False, links_file: Path | None = None) -> dict:
