@@ -181,6 +181,7 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 *.db
+!example/any2ebook.db
 any2ebook/config.yaml
 any2ebook/config.yaml
 .vscode/launch.json
